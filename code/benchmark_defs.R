@@ -6,8 +6,7 @@ OMLDATASETS = tasks$did[!(tasks$did %in% c(1054, 1071, 1065))] # Cannot guess ta
 
 MEASURES = function(x) switch(x, "classif" = list(acc, ber, mmce, multiclass.au1u, multiclass.brier, logloss, timetrain), "regr" = list(mse, mae, medae, medse, timetrain))
 
-
-listLearners("classif", properties = c("multiclass", "prob")
-listLearners("regr")$short.name]
+listLearners("classif", properties = c("multiclass", "prob"))
+listLearners("regr")
 
 LEARNERIDS = c("randomForest", "ranger", "randomForestSRC")

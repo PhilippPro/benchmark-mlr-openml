@@ -35,15 +35,32 @@ result_classif_na[, sum(is.na(acc.test.mean)), by = did]
 result_classif_na[, sum(is.na(acc.test.mean)), by = algo]
 result_classif_na = result_classif_na[algo %in% which(result_classif_na[, sum(is.na(acc.test.mean)), by = algo]$V1 == 0)]
 
+# mean
+res_classif_na_mean = result_classif_na[, list(acc = mean(acc.test.mean, na.rm=T), ber = mean(ber.test.mean, na.rm=T), 
+                                               multiclass.au1u = mean(multiclass.au1u.test.mean, na.rm=T), 
+                                               multiclass.brier = mean(multiclass.brier.test.mean, na.rm=T),
+                                               logloss = mean(logloss.test.mean, na.rm=T)), by = algo]
+
+pdf("best_algo_classif_mean.pdf",width=12,height=9)
+for (i in colnames(res_classif_na_mean)[2:6]){
+  setkeyv(res_classif_na_mean, cols = i)
+  par(mar=c(10, 4, 4, 1))
+  barplot(revert(i, unlist(res_classif_na_mean[, i, with = F])), 
+          names.arg = substr(names(res_classif_load[[1]]$results$data)[revert(i, res_classif_na_mean$algo)],9,100), ylim = range(unlist(res_classif_na_mean[, i, with = F])), xpd = FALSE,
+          col = "blue", las = 2, main = paste0("Wer hat den Längsten? (", i, ")"), ylab = paste0("Mean of ", i ," of the 27 classification learners on 77 clean datasets"))
+}
+dev.off()
+
+# ranks
+
 res_classif_na = result_classif_na[, list(algo, acc = rank(acc.test.mean, na.last = "keep"),
                                                      ber = rank(ber.test.mean, na.last = "keep"),
                                                      multiclass.au1u = rank(multiclass.au1u.test.mean, na.last = "keep"),
                                                      multiclass.brier = rank(multiclass.brier.test.mean, na.last = "keep"),
                                                      logloss = rank(logloss.test.mean, na.last = "keep")), by = did]
-
-res_classif_na_rank = res_classif_na[,list(acc = mean(acc, na.rm=T), ber = mean(ber, na.rm=T), 
+res_classif_na_rank = res_classif_na[, list(acc = mean(acc, na.rm=T), ber = mean(ber, na.rm=T), 
                                            multiclass.au1u = mean(multiclass.au1u, na.rm=T), 
-                                           multiclass.brier  = mean(multiclass.brier , na.rm=T),
+                                           multiclass.brier = mean(multiclass.brier, na.rm=T),
                                            logloss = mean(logloss , na.rm=T)), by = algo]
 
 revert = function(x, y) {
@@ -53,7 +70,7 @@ revert = function(x, y) {
     return(y)}
 }
 
-pdf("best_algo_classif.pdf",width=12,height=9)
+pdf("best_algo_classif_rank.pdf",width=12,height=9)
 for (i in colnames(res_classif_na_rank)[2:6]){
 setkeyv(res_classif_na_rank, cols = i)
 par(mar=c(10, 4, 4, 1))
@@ -109,7 +126,7 @@ for (i in colnames(res_regr_na_rank)[2:5]){
   par(mar=c(10, 4, 4, 1))
   barplot(unlist(res_regr_na_rank[, i, with = F]), 
           names.arg = substr(names(res_regr_load[[1]]$results$data)[res_regr_na_rank$algo],6,100), 
-          col = "blue", las = 2, main = paste0("Wer hat den Längsten? (", i, ")"), ylab = paste0("Average Rank (", i ,") of the x regression learners on x clean datasets"))
+          col = "blue", las = 2, main = paste0("Wer hat den Längsten? (", i, ")"), ylab = paste0("Average Rank (", i ,") of the 31 regression learners on x clean datasets"))
 }
 dev.off()
 

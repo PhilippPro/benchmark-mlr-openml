@@ -41,13 +41,15 @@ res_classif_na_mean = result_classif_na[, list(acc = mean(acc.test.mean, na.rm=T
                                                multiclass.brier = mean(multiclass.brier.test.mean, na.rm=T),
                                                logloss = mean(logloss.test.mean, na.rm=T)), by = algo]
 
-pdf("best_algo_classif_mean.pdf",width=12,height=9)
-for (i in colnames(res_classif_na_mean)[2:6]){
-  setkeyv(res_classif_na_mean, cols = i)
+measure.names = c("accuracy", "balanced error rate", "multiclass auc", "multiclass brier score", "logarithmic loss")
+pdf("best_algo_classif_mean_1.pdf",width=12,height=9)
+for (i in 1:5){
+  j = colnames(res_classif_na_mean)[i+1]
+  setkeyv(res_classif_na_mean, cols = j)
   par(mar=c(10, 4, 4, 1))
-  barplot(revert(i, unlist(res_classif_na_mean[, i, with = F])), 
-          names.arg = substr(names(res_classif_load[[1]]$results$data)[revert(i, res_classif_na_mean$algo)],9,100), ylim = range(unlist(res_classif_na_mean[, i, with = F])), xpd = FALSE,
-          col = "blue", las = 2, main = paste0("Wer hat den Längsten? (", i, ")"), ylab = paste0("Mean of ", i ," of the 27 classification learners on 77 clean datasets"))
+  barplot(revert(j, unlist(res_classif_na_mean[, j, with = F])), 
+          names.arg = substr(names(res_classif_load[[1]]$results$data)[revert(j, res_classif_na_mean$algo)],9,100), ylim = range(unlist(res_classif_na_mean[, j, with = F])), xpd = FALSE,
+          col = "blue", las = 2, main = paste0("Comparison of ",measure.names[i], " of 27 multiclass classification learners"), ylab = paste0("Mean of ",measure.names[i], " on 77 clean datasets"))
 }
 dev.off()
 

@@ -36,25 +36,43 @@ result_classif_na[, sum(is.na(acc.test.mean)), by = algo]
 result_classif_na = result_classif_na[algo %in% which(result_classif_na[, sum(is.na(acc.test.mean)), by = algo]$V1 == 0)]
 
 # mean
-res_classif_na_mean = result_classif_na[, list(acc = mean(acc.test.mean, na.rm=T), ber = mean(ber.test.mean, na.rm=T), 
-                                               multiclass.au1u = mean(multiclass.au1u.test.mean, na.rm=T), 
-                                               multiclass.brier = mean(multiclass.brier.test.mean, na.rm=T),
-                                               logloss = mean(logloss.test.mean, na.rm=T)), by = algo]
 
-measure.names = c("accuracy", "balanced error rate", "multiclass auc", "multiclass brier score", "logarithmic loss")
-pdf("best_algo_classif_mean_1.pdf",width=12,height=9)
-for (i in 1:5){
-  j = colnames(res_classif_na_mean)[i+1]
-  setkeyv(res_classif_na_mean, cols = j)
-  par(mar=c(10, 4, 4, 1))
-  barplot(revert(j, unlist(res_classif_na_mean[, j, with = F])), 
-          names.arg = substr(names(res_classif_load[[1]]$results$data)[revert(j, res_classif_na_mean$algo)],9,100), ylim = range(unlist(res_classif_na_mean[, j, with = F])), xpd = FALSE,
-          col = "blue", las = 2, main = paste0("Comparison of ",measure.names[i], " of 27 multiclass classification learners"), ylab = paste0("Mean of ",measure.names[i], " on 77 clean datasets"))
+revert = function(x, y) {
+  if (x %in% c("acc", "multiclass.au1u")){
+    return(rev(y))
+  } else {
+    return(y)}
 }
+
+mean_analysis = function(result_classif_na) {
+  res_classif_na_mean = result_classif_na[, list(acc = mean(acc.test.mean, na.rm=T), ber = mean(ber.test.mean, na.rm=T), 
+                                                 multiclass.au1u = mean(multiclass.au1u.test.mean, na.rm=T), 
+                                                 multiclass.brier = mean(multiclass.brier.test.mean, na.rm=T),
+                                                 logloss = mean(logloss.test.mean, na.rm=T)), by = algo]
+  
+  measure.names = c("accuracy", "balanced error rate", "multiclass auc", "multiclass brier score", "logarithmic loss")
+  
+  for (i in 1:5){
+    j = colnames(res_classif_na_mean)[i+1]
+    setkeyv(res_classif_na_mean, cols = j)
+    par(mar=c(10, 4, 4, 1))
+    barplot(revert(j, unlist(res_classif_na_mean[, j, with = F])), 
+            names.arg = substr(names(res_classif_load[[1]]$results$data)[revert(j, res_classif_na_mean$algo)],9,100), ylim = range(unlist(res_classif_na_mean[, j, with = F])), xpd = FALSE,
+            col = "blue", las = 2, main = paste0("Comparison of ",measure.names[i], " of 27 multiclass classification learners"), ylab = paste0("Mean of ",measure.names[i], " on ", nrow(result_classif_na)/nrow(res_classif_na_mean) ," clean datasets"))
+  }
+}
+
+
+pdf("best_algo_classif_mean_1.pdf",width=12,height=9)
+mean_analysis(result_classif_na)
 dev.off()
+# binary classification problems
+mean_analysis(result_classif_na[did %in% which(tasks[1:187,]$NumberOfClasses == 2)])
+# multiclass classification problems
+mean_analysis(result_classif_na[did %in% which(tasks[1:187,]$NumberOfClasses != 2)])
 
 # ranks
-
+rank_analysis = function(result_classif_na) {
 res_classif_na = result_classif_na[, list(algo, acc = rank(acc.test.mean, na.last = "keep"),
                                                      ber = rank(ber.test.mean, na.last = "keep"),
                                                      multiclass.au1u = rank(multiclass.au1u.test.mean, na.last = "keep"),
@@ -65,23 +83,22 @@ res_classif_na_rank = res_classif_na[, list(acc = mean(acc, na.rm=T), ber = mean
                                            multiclass.brier = mean(multiclass.brier, na.rm=T),
                                            logloss = mean(logloss , na.rm=T)), by = algo]
 
-revert = function(x, y) {
-  if (x %in% c("acc", "multiclass.au1u")){
-  return(rev(y))
-    } else {
-    return(y)}
-}
-
-pdf("best_algo_classif_rank.pdf",width=12,height=9)
 for (i in colnames(res_classif_na_rank)[2:6]){
 setkeyv(res_classif_na_rank, cols = i)
 par(mar=c(10, 4, 4, 1))
 barplot(revert(i, unlist(res_classif_na_rank[, i, with = F])), 
         names.arg = substr(names(res_classif_load[[1]]$results$data)[revert(i, res_classif_na_rank$algo)],9,100), 
-        col = "blue", las = 2, main = paste0("Wer hat den Längsten? (", i, ")"), ylab = paste0("Average Rank (", i ,") of the 27 classification learners on 77 clean datasets"))
+        col = "blue", las = 2, main = paste0("Wer hat den Längsten? (", i, ")"), ylab = paste0("Average Rank (", i ,") of the 27 classification learners on ", nrow(result_classif_na)/nrow(res_classif_na_mean) ," clean datasets"))
 }
-dev.off()
+}
 
+pdf("best_algo_classif_rank.pdf",width=12,height=9)
+rank_analysis(result_classif_na)
+dev.off()
+# binary classification problems
+rank_analysis(result_classif_na[did %in% which(tasks[1:187,]$NumberOfClasses == 2)])
+# multiclass classification problems
+rank_analysis(result_classif_na[did %in% which(tasks[1:187,]$NumberOfClasses != 2)])
 
 ########################################################################################################
 # Regression
@@ -106,7 +123,7 @@ barplot(sort(res_regr[, mean(rank, na.rm=T), by = algo]$V1, decreasing = T),
 
 # ohne na's
 sum_nas = result_regr[, sum(is.na(mse.test.mean)), by = did]
-dids_ok = sum_nas[V1 <= 4,]$did
+dids_ok = sum_nas[V1 <= 2,]$did
 
 result_regr_na = result_regr[did %in% dids_ok,]
 result_regr_na[, sum(is.na(mse.test.mean)), by = did]

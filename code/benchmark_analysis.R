@@ -191,7 +191,7 @@ for (i in colnames(res_regr_rank)[3:7]){
 dev.off()
 
 # (fast) ohne na's
-sum_nas = result_regr[, sum(is.na(mse.test.mean)), by = did]
+sum_nas = res_regr[, sum(is.na(mse)), by = did]
 dids_ok = sum_nas[V1 <= 2,]$did
 
 res_regr_na = res_regr[did %in% dids_ok,]
@@ -200,7 +200,7 @@ res_regr_na[, sum(is.na(mse)), by = algo]
 
 res_regr[, sum(is.na(mse)), by = algo]
 res_regr_na_rank = res_regr_na[, list(algo, mse = NA_is_smallest(mse, na.last = TRUE), mae = NA_is_smallest(mae, na.last = TRUE), medae = NA_is_smallest(medae, na.last = TRUE), medse = NA_is_smallest(medse, na.last = TRUE), timetrain = NA_is_smallest(timetrain, na.last = TRUE)), by = did]
-res_regr_na_rank_mean = res_regr_rank[, list(mse = mean(mse), mae = mean(mae), medae = mean(medae), medse = mean(medse), timetrain = mean(timetrain)), by = algo]
+res_regr_na_rank_mean = res_regr_na_rank[, list(mse = mean(mse), mae = mean(mae), medae = mean(medae), medse = mean(medse), timetrain = mean(timetrain)), by = algo]
 
 pdf("best_algo_regr_rank.pdf",width=12,height=9)
 for (i in colnames(res_regr_na_rank)[3:7]){

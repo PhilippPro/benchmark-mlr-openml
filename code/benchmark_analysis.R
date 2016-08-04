@@ -99,7 +99,7 @@ mean_analysis = function(res_classif_na) {
                                                  logloss = mean(logloss),
                                                  timetrain = mean(timetrain)), by = algo]
    
-  for (i in colnames(res_classif_rank_mean)[2:7]){
+  for (i in colnames(res_classif_na_mean)[2:7]){
     print(i)
     setkeyv(res_classif_na_mean, cols = i)
     measure.name = measure.names[i == measure.names.short]
@@ -108,7 +108,7 @@ mean_analysis = function(res_classif_na) {
                            average_rank = revert(i, unlist(res_classif_na_mean[, i, with = F])))
     plot_data$learner = factor(plot_data$learner, levels = plot_data$learner)
     print(ggplot(plot_data, aes(x = learner, y = average_rank)) + geom_bar(stat = "identity") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_cartesian(ylim=range(plot_data$average_rank)) +
-            ggtitle(paste0("Comparison of ", measure.name, " of 27 multiclass classification learners")) + ylab(paste0("Mean of ",measure.name, " rank on 187 classification datasets")) + xlab("learner"))
+            ggtitle(paste0("Comparison of ", measure.name, " of 27 multiclass classification learners")) + ylab(paste("Mean of",measure.name, "on", nrow(res_classif_na)/nrow(res_classif_na_mean) ,"classification datasets")) + xlab("learner"))
   }
 }
 
@@ -129,22 +129,22 @@ rank_analysis = function(res_classif_na) {
                                               multiclass.brier = rank(multiclass.brier),
                                               logloss = rank(logloss), 
                                               timetrain = rank(timetrain)), by = did]
-  res_classif_na_rank = res_classif_na_rank[, list(acc = mean(acc), ber = mean(ber), 
+  res_classif_na_rank_mean = res_classif_na_rank[, list(acc = mean(acc), ber = mean(ber), 
                                                    multiclass.au1u = mean(multiclass.au1u), 
                                                    multiclass.brier = mean(multiclass.brier),
                                                    logloss = mean(logloss),
                                                    timetrain = mean(timetrain)), by = algo]
   
-  for (i in colnames(res_classif_rank_mean)[2:7]){
+  for (i in colnames(res_classif_na_rank_mean)[2:7]){
     print(i)
-    setkeyv(res_classif_na_rank, cols = i)
+    setkeyv(res_classif_na_rank_mean, cols = i)
     measure.name = measure.names[i == measure.names.short]
     
-    plot_data = data.frame(learner = revert(i, algo.names[res_classif_na_rank$algo]), 
-                           average_rank = revert(i, unlist(res_classif_na_rank[, i, with = F])))
+    plot_data = data.frame(learner = revert(i, algo.names[res_classif_na_rank_mean$algo]), 
+                           average_rank = revert(i, unlist(res_classif_na_rank_mean[, i, with = F])))
     plot_data$learner = factor(plot_data$learner, levels = plot_data$learner)
     print(ggplot(plot_data, aes(x = learner, y = average_rank)) + geom_bar(stat = "identity") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_cartesian(ylim=range(plot_data$average_rank)) +
-            ggtitle(paste0("Comparison of ", measure.name, " of 27 multiclass classification learners")) + ylab(paste0("Mean of ",measure.name, " rank on 187 classification datasets")) + xlab("learner"))
+            ggtitle(paste0("Comparison of ", measure.name, " of 27 multiclass classification learners")) + ylab(paste0("Mean of ",measure.name, " rank on ", nrow(res_classif_na_rank)/nrow(res_classif_na_rank_mean) ," classification datasets")) + xlab("learner"))
   }
 }
 

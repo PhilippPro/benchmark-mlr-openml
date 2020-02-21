@@ -2,9 +2,9 @@ library(mlr)
 library(batchtools)
 library(plyr)
 
-dir = "/home/probst/Benchmarking/benchmark-mlr-openml"
-setwd(paste0(dir,"/results"))
+dir = "C:/Arbeit/R/Github/benchmark-mlr-openml"
 source(paste0(dir,"/code/benchmark_defs.R"))
+setwd(paste0(dir,"/results"))
 
 unlink("benchmark-mlr-openml", recursive = TRUE)
 regis = makeExperimentRegistry("benchmark-mlr-openml", 
@@ -13,7 +13,7 @@ regis = makeExperimentRegistry("benchmark-mlr-openml",
                                work.dir = paste0(dir, "/results"),
                                conf.file = paste0(dir,"/code/.batchtools.conf.R")
 )
-regis$cluster.functions = makeClusterFunctionsMulticore(ncpus = 10) 
+regis$cluster.functions = makeClusterFunctionsMulticore(ncpus = 6) 
 
 # add selected OML datasets as problems
 for (did in OMLDATASETS) {
